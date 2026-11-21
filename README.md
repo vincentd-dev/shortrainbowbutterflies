@@ -118,7 +118,7 @@ cd path\to\your\project\folder
 2. Compile `main.cpp` together with all `.cpp` files in `modules/` using C++17:
 
 ```powershell
-$cppFiles = @("main.cpp") + (Get-ChildItem "modules\*.cpp" \vert{} ForEach-Object { $_.FullName })
+$cppFiles = @("main.cpp") + (Get-ChildItem "modules\*.cpp" | ForEach-Object { $_.FullName })
 g++ -std=c++17 -Wall -Wextra $cppFiles -o engitool.exe
 ```
 
