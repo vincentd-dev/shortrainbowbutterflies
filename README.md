@@ -61,7 +61,7 @@ The `spreadsheet` module works as a terminal-based grid where you can enter valu
 * **Formula evaluation (`SUM`, `AVG`, `PROD`):** You can apply supported operations over selected cells or ranges to calculate sums, averages, or products automatically.
 * **CSV persistence (`data/`):** Sheets can be saved to `.csv` files inside `data/` (within the project folder) and loaded back later—and because they are standard CSV files, you can also open or inspect them in spreadsheet software or a text editor.
 
-* ## Local Files Generated While Running (`data/`)
+## Local Files Generated While Running (`data/`)
 
 When you run the program, `data/` is created **inside the project folder** (alongside `main.cpp` and `modules/`, relative to your current working directory when running the executable) so your changes persist between sessions:
 
