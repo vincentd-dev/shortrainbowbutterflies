@@ -1,19 +1,42 @@
 ﻿#include "spreadsheet.hpp"   // Declares runSpreadsheetModule()
 #include <cctype>    // Provides toupper and isdigit
 #include <cstdlib>   // Provides atoi and strtod
+#include <filesystem>// Provides filesystem directory creation
 #include <fstream>   // Provides ifstream and ofstream
 #include <iomanip>   // Provides setw, left, fixed, setprecision
 #include <iostream>  // Provides cin and cout
 #include <limits>    // Provides numeric_limits
 #include <sstream>   // Provides stringstream and ostringstream
+#include <string>    // Provides string helpers
 #include <vector>    // Provides vector for 2D grid
 
 using namespace std; // Brings std names into sheet.cpp
+namespace fs = filesystem; // Short alias for std::filesystem
 
 namespace { // Private spreadsheet helpers
 
 constexpr int ROWS = 5; // SPREADSHEET: Grid row count (1..5)
 constexpr int COLS = 5; // SPREADSHEET: Grid column count (A..E)
+
+// SPREADSHEET: Extracts a numeric value from plain numbers or currency-formatted strings like "$15.00"
+bool tryParseNumericCell(const string& raw, double& outVal) {
+    string cleaned;
+    for (unsigned char ch : raw) {
+        if (isdigit(ch) || ch == '.' || ch == '-' || ch == '+') {
+            cleaned.push_back(static_cast<char>(ch));
+        }
+    }
+    if (cleaned.empty() || cleaned == "-" || cleaned == "+" || cleaned == ".") {
+        return false;
+    }
+    char* endPtr = nullptr;
+    double num = strtod(cleaned.c_str(), &endPtr);
+    if (endPtr != cleaned.c_str() && *endPtr == '\0') {
+        outVal = num;
+        return true;
+    }
+    return false;
+}
 
 // SPREADSHEET: Converts cell reference like "A1" into 0-based row and column indices
 bool parseCellRef(const string& ref, int& r, int& c) {
@@ -40,10 +63,12 @@ double evalCellOrFormula(const string& raw,
                           int depth = 0) {
     if (raw.empty() || depth > 8) return 0.0;
 
-    char* endPtr = nullptr;
-    double num = strtod(raw.c_str(), &endPtr);
-    if (endPtr != raw.c_str() && *endPtr == '\0') {
-        return num; // Direct numeric value
+    if (raw[0] != '=') {
+        double parsedNum = 0.0;
+        if (tryParseNumericCell(raw, parsedNum)) {
+            return parsedNum; // Direct or currency-formatted numeric value
+        }
+        return 0.0;
     }
 
     if (raw[0] == '=') {
@@ -102,6 +127,7 @@ string displayCell(const string& raw, const vector<vector<string>>& grid) {
 
 // SPREADSHEET: Saves grid contents to data/sheet_data.csv
 void saveSheet(const vector<vector<string>>& grid) {
+    fs::create_directories("data");
     ofstream out("data/sheet_data.csv");
     for (int r = 0; r < ROWS; ++r) {
         for (int c = 0; c < COLS; ++c) {

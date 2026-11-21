@@ -1,4 +1,5 @@
 ﻿#include "schedule_planner.hpp" // Declares runPlannerAndNotesModule()
+#include <filesystem> // Provides filesystem directory helpers
 #include <fstream>   // Provides ifstream and ofstream for offline persistence
 #include <iomanip>   // Provides setw and left for formatted lists
 #include <iostream>  // Provides cin and cout
@@ -6,6 +7,7 @@
 #include <sstream>   // Provides stringstream
 
 using namespace std; // Brings std names into planner.cpp
+namespace fs = filesystem;
 
 namespace { // Private helpers for notes and schedule planning
 
@@ -16,9 +18,14 @@ void addNote(const string& username) {
     getline(cin, title);
     cout << "Note content: ";
     getline(cin, body);
+    if (title.empty() || body.empty()) {
+        cout << "[OFFLINE NOTES] Title and content cannot be empty.\n";
+        return;
+    }
     for (char& ch : title) if (ch == '|') ch = '/';
     for (char& ch : body) if (ch == '|') ch = '/';
 
+    fs::create_directories("data");
     ofstream out("data/notes.txt", ios::app);
     if (out.is_open()) {
         out << username << "|" << title << "|" << body << "\n";
@@ -57,10 +64,19 @@ void addScheduleItem(const string& username) {
     cout << "Date (e.g., 2026-12-01): ";
     getline(cin, dateStr);
 
+    if (title.empty() || dateStr.empty()) {
+        cout << "[SCHEDULE PLANNER] Title and date cannot be empty.\n";
+        return;
+    }
+    if (kind.empty()) {
+        kind = "Task";
+    }
+
     for (char& ch : kind) if (ch == '|') ch = '/';
     for (char& ch : title) if (ch == '|') ch = '/';
     for (char& ch : dateStr) if (ch == '|') ch = '/';
 
+    fs::create_directories("data");
     ofstream out("data/schedule.txt", ios::app);
     if (out.is_open()) {
         out << username << "|" << kind << "|" << dateStr << "|" << title << "\n";
@@ -76,9 +92,9 @@ void viewSchedule() {
         cout << "No schedule items yet.\n";
         return;
     }
-    cout << left << setw(12) << "Date" << setw(12) << "Type"
-         << setw(14) << "Owner" << "Title\n";
-    cout << string(62, '-') << "\n";
+    cout << left << setw(14) << "Date" << setw(14) << "Type"
+         << setw(16) << "Owner" << "Title\n";
+    cout << string(66, '-') << "\n";
 
     string line;
     while (getline(in, line)) {
@@ -89,8 +105,8 @@ void viewSchedule() {
         getline(ss, kind, '|');
         getline(ss, dateStr, '|');
         getline(ss, title, '|');
-        cout << left << setw(12) << dateStr << setw(12) << kind
-             << setw(14) << user << title << "\n";
+        cout << left << setw(14) << dateStr << setw(14) << kind
+             << setw(16) << user << title << "\n";
     }
 }
 

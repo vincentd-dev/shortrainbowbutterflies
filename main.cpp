@@ -26,7 +26,7 @@ void showDashboard(Session& session) {
         cout << "\n" << string(46, '=') << "\n";
         cout << " ENGITOOL SUITE | User: " << session.username
              << " | Role: " << session.role << "\n";
-        cout << " Simulated Wallet: PHP " << fixed << setprecision(2)
+        cout << " Wallet: PHP " << fixed << setprecision(2)
              << session.walletBalance << "\n";
         cout << string(46, '=') << "\n";
         cout << left << setw(5) << "[1]" << "Advanced Engineering Calculator\n";

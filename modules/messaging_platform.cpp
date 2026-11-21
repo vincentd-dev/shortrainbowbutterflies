@@ -1,5 +1,6 @@
 ﻿#include "messaging_platform.hpp" // Declares workspace, messaging, and tutor functions
 #include <cstdlib> // Provides strtod
+#include <filesystem> // Provides filesystem directory helpers
 #include <fstream> // Provides ifstream and ofstream
 #include <iomanip> // Provides setw, left, fixed, setprecision
 #include <iostream>// Provides cin and cout
@@ -8,6 +9,7 @@
 #include <vector>  // Provides vector
 
 using namespace std; // Brings std names into comms.cpp
+namespace fs = filesystem;
 
 namespace { // Private helpers for workspace, messaging, and online tutors
 
@@ -16,8 +18,13 @@ void addWorkspaceItem(const string& username) {
     string item;
     cout << "Shared workspace update/task: ";
     getline(cin, item);
+    if (item.empty()) {
+        cout << "[TEAM COLLABORATION] Entry cannot be empty.\n";
+        return;
+    }
     for (char& ch : item) if (ch == '|') ch = '/';
 
+    fs::create_directories("data");
     ofstream out("data/workspace.txt", ios::app);
     if (out.is_open()) {
         out << username << "|" << item << "\n";
@@ -55,10 +62,19 @@ void sendMessage(const string& sender) {
     cout << "Message: ";
     getline(cin, msg);
 
+    if (target.empty() || msg.empty()) {
+        cout << "[MESSAGING] Target and message cannot be empty.\n";
+        return;
+    }
+    if (channelType.empty()) {
+        channelType = "Direct";
+    }
+
     for (char& ch : channelType) if (ch == '|') ch = '/';
     for (char& ch : target) if (ch == '|') ch = '/';
     for (char& ch : msg) if (ch == '|') ch = '/';
 
+    fs::create_directories("data");
     ofstream out("data/messages.txt", ios::app);
     if (out.is_open()) {
         out << channelType << "|" << sender << "|" << target << "|" << msg << "\n";
@@ -103,6 +119,7 @@ void ensureTutorSeedFile() {
     ifstream check("data/tutors.txt");
     if (check.good()) return;
 
+    fs::create_directories("data");
     ofstream out("data/tutors.txt");
     out << "T1|Eng. Cruz|Calculus & Statics|CV Verified, Certified, BG Checked|Mon/Wed 4PM|150.00|14.4|3\n";
     out << "T2|Prof. Reyes|Circuits & Python|CV Verified, Certified, BG Checked|Tue/Thu 5PM|180.00|9.6|2\n";
@@ -137,6 +154,7 @@ vector<TutorProfile> loadTutors() {
 
 // ONLINE TUTOR: Saves updated tutor profiles/ratings back to data/tutors.txt
 void saveTutors(const vector<TutorProfile>& list) {
+    fs::create_directories("data");
     ofstream out("data/tutors.txt");
     for (const auto& t : list) {
         out << t.id << "|" << t.name << "|" << t.specialty << "|"
@@ -200,7 +218,7 @@ void runOnlineTutorModule(Session& activeSession) {
         cout << "\n--- ONLINE TUTOR PLATFORM ---\n";
         cout << "[1] Browse Tutors (Profiles, Verifications, Ratings & Slots)\n";
         cout << "[2] Quick Skill Self-Assessment Check\n";
-        cout << "[3] Book Tutor Slot & Pay via Simulated Wallet\n";
+        cout << "[3] Book Tutor Slot & Pay via Wallet\n";
         cout << "[4] Rate & Review a Tutor\n";
         cout << "[0] Back to Dashboard\n";
         cout << "Choice: ";
@@ -219,7 +237,12 @@ void runOnlineTutorModule(Session& activeSession) {
             int ans = 0;
             cout << "\n[Skill Assessment] What is the derivative of x^2 with respect to x?\n";
             cout << "[1] x   [2] 2x   [3] x^3\nAnswer: ";
-            cin >> ans;
+            if (!(cin >> ans)) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid answer choice.\n";
+                continue;
+            }
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             if (ans == 2) {
                 cout << "Correct! Recommended focus: Calculus / Differential Equations.\n";
@@ -240,6 +263,7 @@ void runOnlineTutorModule(Session& activeSession) {
                     } else {
                         activeSession.walletBalance -= t.hourlyRate;
                         updateWalletBalance(activeSession.username, activeSession.walletBalance);
+                        fs::create_directories("data");
                         ofstream log("data/tutor_bookings.txt", ios::app);
                         log << activeSession.username << "|" << t.id << "|" << t.name
                             << "|" << t.scheduleSlot << "|PAID:" << t.hourlyRate << "\n";
@@ -258,17 +282,26 @@ void runOnlineTutorModule(Session& activeSession) {
             cout << "Enter Tutor ID to rate: ";
             getline(cin, id);
             cout << "Rating (1.0 to 5.0): ";
-            cin >> score;
+            if (!(cin >> score)) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid rating input.\n";
+                continue;
+            }
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             if (score >= 1.0 && score <= 5.0) {
+                bool found = false;
                 for (auto& t : tutors) {
                     if (t.id == id) {
                         t.ratingSum += score;
                         t.ratingCount += 1;
                         saveTutors(tutors);
                         cout << "[RATINGS] Thank you! Rating recorded.\n";
+                        found = true;
+                        break;
                     }
                 }
+                if (!found) cout << "Tutor ID not found.\n";
             } else {
                 cout << "Rating must be between 1.0 and 5.0.\n";
             }

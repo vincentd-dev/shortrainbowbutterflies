@@ -3,16 +3,14 @@
 
 #include <string> // Enables string usage in declarations
 
-using namespace std; // Allows standard library names in this header
-
-// AUTH & PROFILES: Stores active user session state, profile info, privacy setting, and simulated wallet
+// AUTH & PROFILES: Stores active user session state, profile info, privacy setting, and wallet balance
 struct Session {
     bool loggedIn = false;          // True once login + MFA succeeds
-    string username;                // Logged-in account username
-    string role;                    // Role: Student, Tutor, Admin, or Engineer
-    string profileBio;              // Short user profile summary/headline
+    std::string username;           // Logged-in account username
+    std::string role;               // Role: Student, Tutor, Admin, or Engineer
+    std::string profileBio;         // Short user profile summary/headline
     bool privateProfile = false;    // Privacy control flag (hides profile details when true)
-    double walletBalance = 0.0;     // Simulated balance used for tutor bookings/payments
+    double walletBalance = 0.0;     // Balance used for tutor bookings/payments
 };
 
 // AUTH & SECURITY: Initializes data directory and default user/profile records
@@ -27,8 +25,8 @@ bool loginUser(Session& activeSession);
 // AUTH & PROFILES: Views or edits user profile, privacy controls, and encryption status
 void manageProfileAndPrivacy(Session& activeSession);
 
-// AUTH & PROFILES: Helper to update a user's simulated wallet balance in data/users.txt
-bool updateWalletBalance(const string& username, double newBalance);
+// AUTH & PROFILES: Helper to update a user's wallet balance in data/users.txt
+bool updateWalletBalance(const std::string& username, double newBalance);
 
 // AUTH & SECURITY: Displays user account summary for Admin role
 void viewAllUsersAdmin();

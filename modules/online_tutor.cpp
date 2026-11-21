@@ -47,7 +47,8 @@ void runFormulaAssistantModule() {
     while (true) {
         cout << "\nYou> ";
         getline(cin, input);
-        if (input == "exit" || input == "EXIT") break;
+        string lowered = toLower(input);
+        if (lowered == "exit" || lowered == "quit") break;
         if (input.empty()) continue;
         cout << "AI>  " << answerPrompt(input) << "\n";
     }

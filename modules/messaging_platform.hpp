@@ -4,12 +4,10 @@
 #include "user_accounts_security.hpp" // Provides Session struct for wallet updates
 #include <string> // Enables string usage
 
-using namespace std; // Enables standard library usage in header
-
 // TEAM COLLABORATION & MESSAGING: Shared team workspace and direct/group messaging
-void runWorkspaceAndMessagesModule(const string& username);
+void runWorkspaceAndMessagesModule(const std::string& username);
 
-// ONLINE TUTOR: Tutor profiles, verifications, skill ratings, slot booking, and simulated payment
+// ONLINE TUTOR: Tutor profiles, verifications, skill ratings, slot booking, and payment
 void runOnlineTutorModule(Session& activeSession);
 
 #endif // End of COMMS_H

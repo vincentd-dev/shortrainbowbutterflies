@@ -98,7 +98,12 @@ void statsMenu() {
     double sum = 0.0;
     for (int i = 0; i < n; ++i) {
         cout << "Value #" << (i + 1) << ": ";
-        cin >> nums[i];
+        if (!(cin >> nums[i])) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid number entered.\n";
+            return;
+        }
         sum += nums[i];
     }
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -133,12 +138,22 @@ void matrixMenu() {
     cout << "Enter Matrix A (4 values row-by-row): ";
     for (int r = 0; r < 2; ++r)
         for (int c = 0; c < 2; ++c)
-            cin >> a[r][c];
+            if (!(cin >> a[r][c])) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid matrix value.\n";
+                return;
+            }
 
     cout << "Enter Matrix B (4 values row-by-row): ";
     for (int r = 0; r < 2; ++r)
         for (int c = 0; c < 2; ++c)
-            cin >> b[r][c];
+            if (!(cin >> b[r][c])) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Invalid matrix value.\n";
+                return;
+            }
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
     cout << fixed << setprecision(2);
@@ -170,7 +185,12 @@ void equationAndComplexMenu() {
     if (mode == 1) {
         double a, b, c;
         cout << "Enter a, b, c: ";
-        cin >> a >> b >> c;
+        if (!(cin >> a >> b >> c)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid coefficients.\n";
+            return;
+        }
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         if (fabs(a) < 1e-9) {
             cout << "Not quadratic (a = 0).\n";
@@ -190,9 +210,19 @@ void equationAndComplexMenu() {
     } else if (mode == 2) {
         double r1, i1, r2, i2;
         cout << "Enter z1 real and imag: ";
-        cin >> r1 >> i1;
+        if (!(cin >> r1 >> i1)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid complex number z1.\n";
+            return;
+        }
         cout << "Enter z2 real and imag: ";
-        cin >> r2 >> i2;
+        if (!(cin >> r2 >> i2)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid complex number z2.\n";
+            return;
+        }
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         complex<double> z1(r1, i1), z2(r2, i2);
         cout << "Sum:     " << (z1 + z2) << "\n";
@@ -200,7 +230,12 @@ void equationAndComplexMenu() {
     } else if (mode == 3) {
         double iVal, rVal;
         cout << "Enter Current I (Amps) and Resistance R (Ohms): ";
-        cin >> iVal >> rVal;
+        if (!(cin >> iVal >> rVal)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid current or resistance.\n";
+            return;
+        }
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "Voltage V = " << (iVal * rVal) << " Volts\n";
     } else {

@@ -3,9 +3,7 @@
 
 #include <string> // Enables string parameter
 
-using namespace std; // Enables standard library usage in header
-
-// CLOUD STORAGE: Simulated cloud vault with backups, version history, auto-backup, sharing, and sync status
-void runCloudStorageModule(const string& username);
+// CLOUD STORAGE: Cloud vault with backups, version history, auto-backup, sharing, and sync status
+void runCloudStorageModule(const std::string& username);
 
 #endif // End of VAULT_H

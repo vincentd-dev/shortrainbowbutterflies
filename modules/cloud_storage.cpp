@@ -84,7 +84,7 @@ void listBackupsAndHistory() {
     }
 }
 
-// CLOUD STORAGE: Simulates file sharing permissions and cross-device sync manifest
+// CLOUD STORAGE: Manages file sharing permissions and cross-device sync manifest
 void shareAndSyncMenu(const string& username) {
     string targetFile, targetUser, perm;
     cout << "File name/path to share & sync: ";
@@ -94,6 +94,15 @@ void shareAndSyncMenu(const string& username) {
     cout << "Permission (Read / Edit): ";
     getline(cin, perm);
 
+    if (targetFile.empty() || targetUser.empty()) {
+        cout << "[CLOUD STORAGE] File and recipient cannot be empty.\n";
+        return;
+    }
+    if (perm.empty()) {
+        perm = "Read";
+    }
+
+    fs::create_directories("data");
     ofstream out("data/cloud_shares.txt", ios::app);
     if (out.is_open()) {
         out << currentTimestamp() << "|owner=" << username
@@ -110,7 +119,7 @@ void shareAndSyncMenu(const string& username) {
 void runCloudStorageModule(const string& username) {
     int choice = -1;
     while (choice != 0) {
-        cout << "\n--- CLOUD STORAGE (SIMULATED VAULT) ---\n";
+        cout << "\n--- CLOUD STORAGE VAULT ---\n";
         cout << "[1] Backup Spreadsheet (data/sheet_data.csv)\n";
         cout << "[2] Auto-Backup Notes & Schedule Files\n";
         cout << "[3] View Backups, Version History & Sync Log\n";
@@ -141,8 +150,13 @@ void runCloudStorageModule(const string& username) {
             cout << "Restore to path (e.g., data/sheet_data.csv): ";
             getline(cin, restorePath);
 
+            if (snapshotName.empty() || restorePath.empty()) {
+                cout << "[CLOUD STORAGE] Snapshot filename and restore path cannot be empty.\n";
+                continue;
+            }
+
             fs::path src = fs::path("data/backups") / snapshotName;
-            if (!fs::exists(src)) {
+            if (!fs::exists(src) || !fs::is_regular_file(src)) {
                 cout << "[CLOUD STORAGE] Snapshot does not exist.\n";
             } else {
                 if (fs::path(restorePath).has_parent_path()) {

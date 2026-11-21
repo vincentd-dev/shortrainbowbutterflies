@@ -3,9 +3,7 @@
 
 #include <string> // Enables string parameter
 
-using namespace std; // Enables standard library usage in header
-
 // OFFLINE MODE, NOTES & SCHEDULE PLANNER: Manages offline notes, calendar/study schedules, tasks, and deadlines
-void runPlannerAndNotesModule(const string& username);
+void runPlannerAndNotesModule(const std::string& username);
 
 #endif // End of PLANNER_H

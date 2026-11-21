@@ -1,11 +1,10 @@
 ﻿#include "user_accounts_security.hpp"    // Declares Session and auth functions
-#include <cstdlib>   // Provides rand and srand for MFA generation
-#include <ctime>     // Provides time for seeding random generator
 #include <filesystem>// Provides filesystem directory/file checks
 #include <fstream>   // Provides ifstream and ofstream for file persistence
 #include <iomanip>   // Provides fixed, setprecision, setw, and left formatting
 #include <iostream>  // Provides cin and cout for console I/O
 #include <limits>    // Provides numeric_limits for input clearing
+#include <random>    // Provides random_device, mt19937, and uniform_int_distribution
 #include <sstream>   // Provides stringstream for pipe-delimited parsing
 #include <vector>    // Provides vector for updating records
 
@@ -20,7 +19,8 @@ string transformCipher(const string& input, bool encrypt) {
     int direction = encrypt ? 1 : -1; // +1 to encode, -1 to decode
     for (size_t i = 0; i < out.size(); ++i) {
         int shift = (3 + static_cast<int>(i % 5)) * direction; // Position-based shift
-        out[i] = static_cast<char>(out[i] + shift);
+        unsigned char u = static_cast<unsigned char>(out[i]);
+        out[i] = static_cast<char>(static_cast<unsigned int>(u + shift) & 0xFFu);
     }
     return out;
 }
@@ -69,14 +69,13 @@ string chooseRole() {
 
 // AUTH & SECURITY: Generates a 6-digit MFA code and saves it to data/mfa_inbox.txt
 int generateAndSaveMfa(const string& username) {
-    static bool seeded = false; // Seeds RNG once per program run
-    if (!seeded) {
-        srand(static_cast<unsigned int>(time(nullptr)));
-        seeded = true;
-    }
-    int code = (rand() % 900000) + 100000; // Random 6-digit code (100000..999999)
+    static random_device rd;
+    static mt19937 gen(rd());
+    uniform_int_distribution<int> dist(100000, 999999);
+    int code = dist(gen); // Fresh 6-digit code (100000..999999)
 
-    ofstream out("data/mfa_inbox.txt", ios::app); // Append simulated MFA message
+    fs::create_directories("data");
+    ofstream out("data/mfa_inbox.txt", ios::app); // Append MFA message
     if (out.is_open()) {
         out << "User: " << username << " | MFA Code: " << code << "\n";
     }
@@ -85,19 +84,19 @@ int generateAndSaveMfa(const string& username) {
 
 } // namespace
 
-// AUTH & SECURITY: Creates data folders and seeds default demo accounts if missing
+// AUTH & SECURITY: Creates data folders and seeds default accounts if missing
 void initAuthFiles() {
     fs::create_directories("data");         // Create main data folder
     fs::create_directories("data/backups"); // Create backup folder for cloud vault
 
-    if (!fs::exists("data/users.txt")) { // Seed sample accounts (password: pass123)
+    if (!fs::exists("data/users.txt")) { // Seed default accounts (password: pass123)
         ofstream users("data/users.txt");
         users << "student1|" << transformCipher("pass123", true) << "|Student|500.00|BSIT/Engineering Student|0\n";
         users << "tutor1|" << transformCipher("pass123", true) << "|Tutor|1200.00|Math & Physics Tutor|0\n";
         users << "admin1|" << transformCipher("pass123", true) << "|Admin|0.00|System Administrator|1\n";
     }
 
-    if (!fs::exists("data/mfa_inbox.txt")) { // Create simulated MFA inbox file
+    if (!fs::exists("data/mfa_inbox.txt")) { // Create MFA inbox file
         ofstream mfa("data/mfa_inbox.txt");
     }
 }
@@ -133,8 +132,9 @@ bool registerUser() {
         if (ch == '|') ch = '/'; // Avoid breaking pipe-delimited record format
     }
 
-    double startingBalance = (role == "Student") ? 500.00 : 0.00; // Demo starting wallet balance
+    double startingBalance = (role == "Student") ? 500.00 : 0.00; // Starting wallet balance
 
+    fs::create_directories("data");
     ofstream out("data/users.txt", ios::app);
     if (!out.is_open()) {
         cout << "Error saving user account.\n";
@@ -193,7 +193,7 @@ bool loginUser(Session& activeSession) {
 
     int mfaCode = generateAndSaveMfa(username); // Generate and log MFA code
     cout << "\n[MFA] Verification code written to 'data/mfa_inbox.txt'.\n";
-    cout << "[Demo MFA Code]: " << mfaCode << "\n";
+    cout << "[MFA Code]: " << mfaCode << "\n";
 
     int enteredCode = 0;
     cout << "Enter 6-digit MFA code: ";
@@ -241,7 +241,7 @@ void manageProfileAndPrivacy(Session& activeSession) {
              << activeSession.walletBalance << "\n";
         cout << "\n[1] Update Profile Bio\n";
         cout << "[2] Toggle Privacy Mode\n";
-        cout << "[3] Top Up Demo Wallet (+PHP 250.00)\n";
+        cout << "[3] Top Up Wallet (+PHP 250.00)\n";
         cout << "[0] Back to Dashboard\n";
         cout << "Choice: ";
 
@@ -270,7 +270,7 @@ void manageProfileAndPrivacy(Session& activeSession) {
         } else if (choice == 3) {
             activeSession.walletBalance += 250.00;
             updateWalletBalance(activeSession.username, activeSession.walletBalance);
-            cout << "Added PHP 250.00 to simulated wallet.\n";
+            cout << "Added PHP 250.00 to wallet.\n";
         }
     }
 }
@@ -306,6 +306,7 @@ bool updateWalletBalance(const string& username, double newBalance) {
     }
     in.close();
 
+    fs::create_directories("data");
     ofstream out("data/users.txt");
     for (const string& l : lines) {
         out << l << "\n";
