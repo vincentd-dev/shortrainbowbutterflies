@@ -1,4 +1,4 @@
-﻿#include "planner.h" // Declares runPlannerAndNotesModule()
+﻿#include "schedule_planner.hpp" // Declares runPlannerAndNotesModule()
 #include <fstream>   // Provides ifstream and ofstream for offline persistence
 #include <iomanip>   // Provides setw and left for formatted lists
 #include <iostream>  // Provides cin and cout

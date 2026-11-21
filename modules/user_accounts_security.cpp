@@ -1,4 +1,4 @@
-﻿#include "auth.h"    // Declares Session and auth functions
+﻿#include "user_accounts_security.hpp"    // Declares Session and auth functions
 #include <cstdlib>   // Provides rand and srand for MFA generation
 #include <ctime>     // Provides time for seeding random generator
 #include <filesystem>// Provides filesystem directory/file checks

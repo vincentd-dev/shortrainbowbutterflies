@@ -1,4 +1,4 @@
-﻿#include "calc.h"   // Declares runEngineeringCalculator()
+﻿#include "advancedcalculator.hpp"   // Declares runEngineeringCalculator()
 #include <algorithm>// Provides sort for median calculation
 #include <cmath>    // Provides sin, cos, tan, sqrt, pow, fabs
 #include <complex>  // Provides complex<double> for complex equation arithmetic

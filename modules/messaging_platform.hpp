@@ -1,7 +1,7 @@
 ﻿#ifndef COMMS_H // Prevents multiple inclusion of comms.h
 #define COMMS_H // Marks COMMS_H as defined
 
-#include "auth.h" // Provides Session struct for wallet updates
+#include "user_accounts_security.hpp" // Provides Session struct for wallet updates
 #include <string> // Enables string usage
 
 using namespace std; // Enables standard library usage in header

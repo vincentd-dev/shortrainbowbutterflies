@@ -1,10 +1,10 @@
-﻿#include "modules/auth.h"    // Auth, MFA, user profiles, privacy, and admin view
-#include "modules/calc.h"    // ENGINEERING CALCULATOR
-#include "modules/comms.h"   // TEAM COLLABORATION, MESSAGING & ONLINE TUTOR
-#include "modules/helper.h"  // AI INTEGRATION (Formula & study assistant)
-#include "modules/planner.h" // OFFLINE MODE, NOTES & SCHEDULE PLANNER
-#include "modules/sheet.h"   // SPREADSHEET
-#include "modules/vault.h"   // CLOUD STORAGE
+﻿#include "modules/user_accounts_security.hpp"    // Auth, MFA, user profiles, privacy, and admin view
+#include "modules/advancedcalculator.hpp"    // ENGINEERING CALCULATOR
+#include "modules/messaging_platform.hpp"   // TEAM COLLABORATION, MESSAGING & ONLINE TUTOR
+#include "modules/online_tutor.hpp"  // AI INTEGRATION (Formula & study assistant)
+#include "modules/schedule_planner.hpp" // OFFLINE MODE, NOTES & SCHEDULE PLANNER
+#include "modules/spreadsheet.hpp"   // SPREADSHEET
+#include "modules/cloud_storage.hpp"   // CLOUD STORAGE
 #include <iomanip>           // Provides fixed, setprecision, setw, left
 #include <iostream>          // Provides cin and cout
 #include <limits>            // Provides numeric_limits
