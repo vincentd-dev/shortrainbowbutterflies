@@ -14,7 +14,7 @@ Keeping everything in one file gets messy fast once menus, math routines, file s
 ## What `.hpp` Does and Why This Is Pure C++
 
 * **What `.hpp` does:** A `.hpp` file is a C++ header file. Think of it like a list of declarations (functions, structs, and shared types) that tells other files what exists in a module, while the matching `.cpp` file holds the actual code that runs those features.
-* **Why it is still pure C++:** Using `.hpp` instead of `.h` is just a naming convention for C++ header files. Everything in the project is standard C++17 with no external web languages or extra frameworks required.
+* **Why it is still pure C++:** Using `.hpp` instead of `.h` is just a naming convention for C++ header files. The core project is standard C++17 with no external web languages or heavy frameworks required, and optional local AI calls use `curl` against a local Ollama server.
 
 ## Detailed Module Breakdown
 
@@ -51,7 +51,7 @@ Keeping everything in one file gets messy fast once menus, math routines, file s
 
 8. **`modules/online_tutor.hpp` and `.cpp` — Online Tutor**
    * Provides formula and study concept lookup along with rule based guidance.
-   * Helps users review engineering and academic topics right inside the terminal.
+   * Connects to a local Ollama server (`http://localhost:11434/api/chat` via `curl`, default model `llama3.2`) when available, and automatically falls back to built-in offline study and formula responses when Ollama is not running or offline.
 
 ## How the Spreadsheet Works
 
@@ -70,12 +70,19 @@ When you run the program, `data/` is created **inside the project folder** (alon
 * **Why it matters:** Because everything is saved locally in plain text and CSV files, you keep your data across runs without needing an external database or cloud server.
 * **Tip for Git & sharing:** If you test the app locally or build `engitool.exe`, avoid committing temporary `data/` test files or `.exe` binaries unless you intentionally want them in the repository.
 
+## Engineering & Study Helper (Ollama + Offline Fallback)
+
+* **Live local model:** When Ollama is running locally with a pulled model (such as `llama3.2`), the helper queries `http://localhost:11434/api/chat` via `curl`.
+* **Automatic offline fallback:** If you are offline, haven't installed Ollama, or haven't started the Ollama service, the helper still works using its built-in rule-based study and engineering formula responses.
+* **Offline usage:** Once models and tools are downloaded, compiling, running the app, saving `data/`, and chatting with local Ollama all work offline.
+
 ## How to Get, Open, and Run It
 
 ### Requirements
 
-* A C++17 compiler (`g++` via MSYS2 / MinGW on Windows, or `g++` on Linux/macOS)
-* Optional: **Git** (if cloning) and **VS Code** or any C++ IDE (such as Code::Blocks, CLion, or Visual Studio)
+* A C++17 compiler (`g++` via MSYS2 UCRT64 / MinGW on Windows, or `g++` on Linux/macOS) and `curl` (`curl.exe` on Windows, `curl` on Linux/macOS)
+* Optional: **Ollama** + a pulled model (such as `llama3.2`) for live local AI responses in the study/formula helper, **Git** (if cloning), and **VS Code** or any C++ IDE (such as Code::Blocks, CLion, or Visual Studio)
+* See `REQUIREMENTS.md` for install/check commands, environment `PATH` details, and Wi-Fi vs. offline behavior.
 
 ---
 
@@ -109,21 +116,23 @@ Choose either **Option A** (using VS Code or an IDE) or **Option B** (directly i
 3. Open `main.cpp`, open the integrated terminal (`Ctrl + ~` in VS Code) or configure your IDE build task to use `-std=c++17`, and compile/run using the commands in Option B.
 
 #### Option B: Compile and Run Directly in Terminal
-1. Open PowerShell or your terminal inside the project folder:
+1. Open PowerShell or Command Prompt inside the project folder:
 
 ```powershell
 cd path\to\your\project\folder
 ```
 
-2. Compile `main.cpp` together with all `.cpp` files in `modules/` using C++17:
+2. Compile `main.cpp` together with all `.cpp` files in `modules/` using C++17 (using `g++` directly if in `PATH`, or `C:\msys64\ucrt64\bin\g++.exe`):
 
+**PowerShell:**
 ```powershell
-$cppFiles = @("main.cpp") + (Get-ChildItem "modules\*.cpp" | ForEach-Object { $_.FullName })
-g++ -std=c++17 -Wall -Wextra $cppFiles -o engitool.exe
+$cppFiles = @("main.cpp") + (Get-ChildItem "modules\*.cpp").FullName
+C:\msys64\ucrt64\bin\g++.exe -std=c++17 -Wall -Wextra $cppFiles -o engitool.exe
+.\engitool.exe
 ```
 
-3. Run the executable:
-
-```powershell
-.\engitool.exe
+**CMD:**
+```cmd
+C:\msys64\ucrt64\bin\g++.exe -std=c++17 -Wall -Wextra main.cpp modules\*.cpp -o engitool.exe
+engitool.exe
 ```
